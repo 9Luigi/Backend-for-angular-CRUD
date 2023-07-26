@@ -12,10 +12,13 @@ namespace Backend_for_angular_CRUD
             builder.Services.AddCors();
 
             var app = builder.Build();
-            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod());
+            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.MapGet("/", () => "HELLO");
-            app.MapGet("/users/api", () => JsonSerializer.Serialize(users));
+            app.MapGet("/api/getall", (HttpResponse response) => 
+            {
+                 response.WriteAsJsonAsync(users);
+            });
             app.MapPost("/users/api", async (HttpContext context) =>
             {
                 User? user = await JsonSerializer.DeserializeAsync<User>(context.Request.Body);
