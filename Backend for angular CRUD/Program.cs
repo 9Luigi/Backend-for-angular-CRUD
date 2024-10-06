@@ -1,46 +1,44 @@
 using Backend_for_angular_CRUD.Model;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace Backend_for_angular_CRUD
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            List<User> users = new List<User> { new User("1", "Roman", 24), new User("2", "Nazar", 24), new User("3", "Vladimir", 25) };
-            var builder = WebApplication.CreateBuilder(args);
-            builder.Services.AddCors();
+	public class Program
+	{
+		public static void Main(string[] args)
+		{
+			List<User> users = new List<User>() { new User("Vladimir", 24), new User("Nikita", 25), new User("Egor", 26) };
+			var builder = WebApplication.CreateBuilder();
+			builder.Services.AddCors();
 
-            var app = builder.Build();
-            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
-            app.MapGet("/", () => "HELLO");
-            app.MapGet("/api/getall", (HttpResponse response) => 
-            {
-                 response.WriteAsJsonAsync(users);
-            });
-            app.MapPost("/users/api", async (HttpContext context) =>
-            {
-                User? user = await JsonSerializer.DeserializeAsync<User>(context.Request.Body);
-                user!.Id =  Guid.NewGuid().ToString();
-                Console.WriteLine(user!.Id);
-                users.Add(user!);
-            });
-            app.MapPut("/users/api", async (HttpContext context) =>
-            {
-                User? user = await JsonSerializer.DeserializeAsync<User>(context.Request.Body);
-                User? userToUpdate = users.FirstOrDefault(u => u.Id == user!.Id);
-                users.Remove(userToUpdate!);
-                userToUpdate = user;
-                users.Add(userToUpdate!);
-            });
-            app.MapDelete("/users/api/{id?}", (string id) =>
-            {
-                User? userToDelete = users.FirstOrDefault(u => u.Id == id);
-                users.Remove(userToDelete!);
-            });
+			var app = builder.Build();
+			app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
-            app.Run();
-        }
-    }
+			app.MapGet("/", async (HttpResponse response) =>
+			{
+				response.ContentType = "application/json";
+				response.Headers.Append("secret-id", "256");
+				await response.WriteAsJsonAsync(users);
+				System.Diagnostics.Debug.WriteLine("Все пользователи  отправлены");
+			});
+			app.MapGet("/api/users/{id}", async (HttpResponse response, int id) =>
+			{
+				User? userToFind = users.FirstOrDefault(u => u.Id == id);
+				await response.WriteAsJsonAsync(userToFind);
+				System.Diagnostics.Debug.WriteLine(userToFind?.Name+" Отправлен");
+			});
+			app.MapDelete("/api/users/{id}", async (HttpResponse response, int id) =>
+			{
+				User? useToDelete = users.FirstOrDefault(u=> u.Id ==id);
+				users.Remove(useToDelete!);
+				System.Diagnostics.Debug.WriteLine(useToDelete?.Name+" Удален");
+			});
+			app.Run();
+		}
+	}
 }
