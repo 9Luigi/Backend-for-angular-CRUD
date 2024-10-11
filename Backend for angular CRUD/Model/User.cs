@@ -4,24 +4,16 @@ namespace Backend_for_angular_CRUD.Model
 {
     public class User
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
-        public string SurName { get; set; }
+        public string Surname { get; set; }
         public int Age { get; set; }
-        public DateTime BirthDay { get; set; }
-        public static int counter;
-        public User(string name, DateTime birthDay)
+        public User(string name, string Surname)
         {
-            counter++;
-			this.Id = counter;
+			this.Id = Guid.NewGuid();
 			this.Name = name;
-			this.BirthDay = birthDay;
-			var today = DateTime.Today;
-			this.Age = today.Year - BirthDay.Year;
-			if (BirthDay.Date > today.AddYears(-this.Age)) this.Age--;
-			System.Diagnostics.Debug.WriteLine(this.Age);
-			System.Diagnostics.Debug.WriteLine(this.BirthDay);
-            SurName = "da";
+            this.Surname = Surname;
+            this.Age = 1;
 		}
     }
 }
