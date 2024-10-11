@@ -8,7 +8,7 @@ namespace Backend_for_angular_CRUD
 	{
 		public static void Main(string[] args)
 		{
-			List<User> users = new List<User>() { new User("Vladimir", "Vladimir"), new User("Nikita", "DateTime.MinValue"), new User("Egor", "DateTime.MaxValue") };
+			List<User> users = new List<User>() { new User("Vladimir", "Sadkov"), new User("Nikita", "Kovalev"), new User("Egor", "Sosed") };
 			var builder = WebApplication.CreateBuilder();
 			builder.Services.AddCors();
 
@@ -37,26 +37,24 @@ namespace Backend_for_angular_CRUD
 			});
 			app.MapPut("/api/users/", async (HttpRequest request) =>
 			{
-				User? userToPut = await request.ReadFromJsonAsync<User>();
+				User? requestedUser = await request.ReadFromJsonAsync<User>();
+				User? userToDelete = users.FirstOrDefault(u => u.Id == requestedUser!.Id); //TODO why can't just remove requestedUser?
 				User? editedUser = new User("","") {
-					Name = userToPut.Name,
-					Surname = userToPut.Surname
+					Name = requestedUser!.Name,
+					Surname = requestedUser.Surname,
+					Age = requestedUser.Age,
+					Id = requestedUser.Id
 				};
-				editedUser.Id = userToPut.Id;
-				users.Remove(userToPut);
-				users.Add(editedUser);
-				/*foreach(User user in users)
-				{
-					System.Diagnostics.Debug.WriteLine(userToPut);
-				}*/
-				System.Diagnostics.Debug.WriteLine(userToPut.Id);
-				System.Diagnostics.Debug.WriteLine(userToPut.Name);
-				System.Diagnostics.Debug.WriteLine(userToPut.Surname);
-				System.Diagnostics.Debug.WriteLine(editedUser.Id);
-				System.Diagnostics.Debug.WriteLine(editedUser.Name);
-				System.Diagnostics.Debug.WriteLine(editedUser.Surname);
-				//System.Diagnostics.Debug.WriteLine(editedUser.ToString());
-
+				
+				var index = users.IndexOf(userToDelete!);
+				users.RemoveAt(index);
+				users.Insert(index, editedUser);
+			});
+			app.MapPost("api/users/", async (HttpRequest request) =>
+			{
+				User? sentUser = await request.ReadFromJsonAsync<User>();
+				sentUser!.Id = Guid.NewGuid().ToString();
+				users.Add(sentUser!);
 			});
 			app.Run();
 		}
