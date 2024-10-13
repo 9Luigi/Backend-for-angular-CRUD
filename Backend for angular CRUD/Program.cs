@@ -8,7 +8,10 @@ namespace Backend_for_angular_CRUD
 	{
 		public static void Main(string[] args)
 		{
-			List<User> users = new List<User>() { new User("Vladimir", "Sadkov"), new User("Nikita", "Kovalev"), new User("Egor", "Sosed") };
+			List<User> users = new List<User>() {
+				new User("Vladimir", "Sadkov"), new User("Nikita", "Kovalev"), new User("Egor", "Sosed"), new User("Nikita", "Kovalev"), new User("Nikita", "Kovalev"), new User("Nikita", "Kovalev"), new User("Nikita", "Kovalev"), new User("Nikita", "Kovalev"), new User("Nikita", "Kovalev"),
+			new User("Vladimir", "Sadkov"), new User("Nikita", "Kovalev"), new User("Egor", "Sosed"), new User("Nikita", "Kovalev"), new User("Nikita", "Kovalev"), new User("Nikita", "Kovalev"), new User("Nikita", "Kovalev"), new User("Nikita", "Kovalev"), new User("Nikita", "Kovalev")
+			};
 			var builder = WebApplication.CreateBuilder();
 			builder.Services.AddCors();
 
@@ -39,13 +42,14 @@ namespace Backend_for_angular_CRUD
 			{
 				User? requestedUser = await request.ReadFromJsonAsync<User>();
 				User? userToDelete = users.FirstOrDefault(u => u.Id == requestedUser!.Id); //TODO why can't just remove requestedUser?
-				User? editedUser = new User("","") {
+				User? editedUser = new User("", "")
+				{
 					Name = requestedUser!.Name,
 					Surname = requestedUser.Surname,
 					Age = requestedUser.Age,
 					Id = requestedUser.Id
 				};
-				
+
 				var index = users.IndexOf(userToDelete!);
 				users.RemoveAt(index);
 				users.Insert(index, editedUser);
