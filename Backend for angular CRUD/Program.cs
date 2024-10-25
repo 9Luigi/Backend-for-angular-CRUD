@@ -1,24 +1,45 @@
 
+using Backend_for_angular_CRUD.EFContextSQLServer;
+
 namespace Backend_for_angular_CRUD;
 public class Program
 {
 	public static void Main(string[] args)
 	{
 		List<User> users = new List<User>() {
-			new User("Roman","Kudrik",26)
+			new User("Roman","Kudrik",26),
+			new User("Vladimir","Sadkov",26), 
+			new User("Alexandra","Kravchenko",26), 
+			new User("Galina","Maizlina",21), 
+			new User("Dmitry","Surkov",29)
 		};
-		
+
 		var builder = WebApplication.CreateBuilder();
 		builder.Services.AddCors();
 
 
 		var app = builder.Build();
 		app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-
+		app.MapGet("/AddList", () =>
+		{
+			var context = new UsersContext();
+			context.AddRange(users);
+			context.SaveChanges();
+		});
 		app.MapGet("/", async (HttpResponse response) =>
 		{
+			var context = new UsersContext();
 			response.ContentType = "application/json";
 			response.Headers.Append("secret-id", "256");
+
+			var users = context.Users.Select(u => new
+			{
+				u.Id,
+				u.Name,
+				u.Surname,
+				u.Age
+			}).ToList();
+
 			await response.WriteAsJsonAsync(users);
 			System.Diagnostics.Debug.WriteLine("Все пользователи  отправлены");
 		});
@@ -38,7 +59,7 @@ public class Program
 		{
 			User? requestedUser = await request.ReadFromJsonAsync<User>();
 			User? userToDelete = users.FirstOrDefault(u => u.Id == requestedUser!.Id); //TODO why can't just remove requestedUser?
-			User? editedUser = new User("", "",0)
+			User? editedUser = new User("", "", 0)
 			{
 				Name = requestedUser!.Name,
 				Surname = requestedUser.Surname,
