@@ -6,13 +6,16 @@ public class Program
 {
 	public static void Main(string[] args)
 	{
-		List<User> users = new List<User>() {
+		List<User> usersToPost = new List<User>() {
 			new User("Roman","Kudrik",26),
 			new User("Vladimir","Sadkov",26), 
 			new User("Alexandra","Kravchenko",26), 
 			new User("Galina","Maizlina",21), 
 			new User("Dmitry","Surkov",29)
 		};
+
+		var usersContext = new UsersContext();
+		var cRUDController = new CRUDController(usersContext);
 
 		var builder = WebApplication.CreateBuilder();
 		builder.Services.AddCors();
@@ -23,27 +26,18 @@ public class Program
 		app.MapGet("/AddList", () =>
 		{
 			var context = new UsersContext();
-			context.AddRange(users);
+			context.AddRange(usersToPost);
 			context.SaveChanges();
 		});
 		app.MapGet("/", async (HttpResponse response) =>
 		{
-			var context = new UsersContext();
 			response.ContentType = "application/json";
 			response.Headers.Append("secret-id", "256");
-
-			var users = context.Users.Select(u => new
-			{
-				u.Id,
-				u.Name,
-				u.Surname,
-				u.Age
-			}).ToList();
-
-			await response.WriteAsJsonAsync(users);
+			var fulLlist = cRUDController.Select();
+			await response.WriteAsJsonAsync(fulLlist);
 			System.Diagnostics.Debug.WriteLine("Все пользователи  отправлены");
 		});
-		app.MapGet("/api/users/{id}", async (HttpResponse response, string id) =>
+		/*app.MapGet("/api/users/{id}", async (HttpResponse response, string id) =>
 		{
 			User? userToFind = users.FirstOrDefault(u => u.Id.ToString() == id);
 			await response.WriteAsJsonAsync(userToFind);
@@ -76,7 +70,7 @@ public class Program
 			User? sentUser = await request.ReadFromJsonAsync<User>();
 			sentUser!.Id = Guid.NewGuid().ToString();
 			users.Add(sentUser!);
-		});
+		});*/
 		app.Run();
 	}
 }
