@@ -25,21 +25,33 @@ namespace Backend_for_angular_CRUD
 					break;
 			}
 		}
-		protected internal object Select(params int[] count)
+		//TODO to think send User object or id as already send
+		//TODO <T> instead of downcasting
+		protected internal object Select(params string[] idArray) 
 		{
-			switch (count.Length)
+			switch (idArray.Length)
 			{
 				case 0:
-					break;
+					var users = this._userContext.Users.Select(u => new
+					{
+						u.Id,
+						u.Name,
+						u.Surname,
+						u.Age
+					}).ToList();
+					return users;
+				case 1:
+					users = this._userContext.Users.Select(u => new
+					{
+						u.Id,
+						u.Name,
+						u.Surname,
+						u.Age
+					}).Where(u => u.Id == idArray[0]).ToList();
+					return users;
+				default:
+					return null!; //TODO exception
 			}
-			var users = this._userContext.Users.Select(u => new
-			{
-				u.Id,
-				u.Name,
-				u.Surname,
-				u.Age
-			}).ToList();
-			 return users;
 		}
 	}
 }
