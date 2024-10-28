@@ -19,9 +19,11 @@ namespace Backend_for_angular_CRUD
 			{
 				case 1:
 					_userContext.Add(users[0]);
+					_userContext.SaveChangesAsync();
 					break;
 				default:
 					_userContext.AddRange(users);
+					_userContext.SaveChangesAsync();
 					break;
 			}
 		}
@@ -41,14 +43,8 @@ namespace Backend_for_angular_CRUD
 					}).ToList();
 					return users;
 				case 1:
-					users = this._userContext.Users.Select(u => new
-					{
-						u.Id,
-						u.Name,
-						u.Surname,
-						u.Age
-					}).Where(u => u.Id == idArray[0]).ToList();
-					return users;
+					var user = this._userContext.Users.First(u => u.Id == idArray[0]);
+					return user!;
 				default:
 					return null!; //TODO exception
 			}
