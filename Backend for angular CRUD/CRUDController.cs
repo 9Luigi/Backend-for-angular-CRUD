@@ -29,7 +29,7 @@ namespace Backend_for_angular_CRUD
 		}
 		//TODO to think send User object or id as already send
 		//TODO <T> instead of downcasting
-		protected internal object Select(params string[] idArray) 
+		protected internal object Select(params string[] idArray)
 		{
 			switch (idArray.Length)
 			{
@@ -47,6 +47,36 @@ namespace Backend_for_angular_CRUD
 					return user!;
 				default:
 					return null!; //TODO exception
+			}
+		}
+		protected internal void Remove(params string[] usersId)
+		{
+			User? userToRemove;
+			switch (usersId.Length)
+			{
+				case 1:
+					userToRemove = _userContext.Users.First(u => u.Id == usersId[0]);
+					_userContext.Remove(userToRemove);
+					_userContext.SaveChangesAsync();
+					break;
+				default:
+					foreach (var id in usersId)
+					{
+						userToRemove = _userContext.Users.First(u => u.Id == id);
+						_userContext.Remove(userToRemove);
+						_userContext.SaveChangesAsync();
+					}
+					break;
+			}
+		}
+		protected internal void Update(params User[] users)
+		{
+			if (users.Length > 0)
+			{
+				foreach(var userToUpdate in users)
+				{
+					
+				}
 			}
 		}
 	}

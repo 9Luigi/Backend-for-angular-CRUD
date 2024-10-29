@@ -54,15 +54,14 @@ public class Program
 			User? sentUser = await request.ReadFromJsonAsync<User>();
 			sentUser!.Id = Guid.NewGuid().ToString();
 			cRUDController.ADD(sentUser);
-
 		});
-		/*
+
 		app.MapDelete("/api/users/{id}", async (string id) =>
 		{
-			User? useToDelete = users.FirstOrDefault(u => u.Id.ToString() == id);
-			users.Remove(useToDelete!);
-			System.Diagnostics.Debug.WriteLine(useToDelete?.Name + " Удален");
+			cRUDController.Remove(id);
+			System.Diagnostics.Debug.WriteLine("User with id:" + id + " Удален");
 		});
+		/*
 		app.MapPut("/api/users/", async (HttpRequest request) =>
 		{
 			User? requestedUser = await request.ReadFromJsonAsync<User>();
