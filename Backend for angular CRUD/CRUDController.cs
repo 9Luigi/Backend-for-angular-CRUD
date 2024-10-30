@@ -69,15 +69,13 @@ namespace Backend_for_angular_CRUD
 					break;
 			}
 		}
-		protected internal void Update(params User[] users)
+		protected internal void AttachUpdate(User sendUser, User foundUser)
 		{
-			if (users.Length > 0)
-			{
-				foreach(var userToUpdate in users)
-				{
-					
-				}
-			}
+			_userContext.Attach(foundUser);
+			foundUser.Name = sendUser.Name;
+			foundUser.Surname = sendUser.Surname;
+			foundUser.Age = sendUser.Age;
+			_userContext.SaveChangesAsync();
 		}
 	}
 }

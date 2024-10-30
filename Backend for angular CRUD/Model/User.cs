@@ -1,9 +1,11 @@
-﻿using System.Diagnostics.Metrics;
+﻿using System;
+using System.Diagnostics.Metrics;
+using System.Xml.Linq;
 
 namespace Backend_for_angular_CRUD
 {
-    public class User
-    {
+    public class User : ICloneable
+	{
         public string Id { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
@@ -15,5 +17,9 @@ namespace Backend_for_angular_CRUD
             this.Surname = Surname;
             this.Age = age;
 		}
-    }
+		public object Clone()
+		{
+            return new User(Name, Surname, Age);
+		}
+	}
 }

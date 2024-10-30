@@ -61,24 +61,12 @@ public class Program
 			cRUDController.Remove(id);
 			System.Diagnostics.Debug.WriteLine("User with id:" + id + " Удален");
 		});
-		/*
 		app.MapPut("/api/users/", async (HttpRequest request) =>
 		{
-			User? requestedUser = await request.ReadFromJsonAsync<User>();
-			User? userToDelete = users.FirstOrDefault(u => u.Id == requestedUser!.Id); //TODO why can't just remove requestedUser?
-			User? editedUser = new User("", "", 0)
-			{
-				Name = requestedUser!.Name,
-				Surname = requestedUser.Surname,
-				Age = requestedUser.Age,
-				Id = requestedUser.Id
-			};
-
-			var index = users.IndexOf(userToDelete!);
-			users.RemoveAt(index);
-			users.Insert(index, editedUser);
+			User? sendUser = await request.ReadFromJsonAsync<User>();
+			User? foundUser = usersContext.Users.First(x => x.Id == sendUser!.Id);
+			cRUDController.AttachUpdate(sendUser!, foundUser!);
 		});
-		*/
 		app.Run();
 	}
 }
