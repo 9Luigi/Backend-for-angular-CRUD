@@ -1,5 +1,6 @@
 
 using Backend_for_angular_CRUD.EFContextSQLServer;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend_for_angular_CRUD;
 public class Program
@@ -13,9 +14,8 @@ public class Program
 			new User("Galina","Maizlina",21),
 			new User("Dmitry","Surkov",29)
 		};
-
 		var usersContext = new UsersContext();
-		var cRUDController = new CRUDController(usersContext);
+		var cRUDController = new CRUDController<User, UsersContext, DbSet<User>>(usersContext);
 
 		var builder = WebApplication.CreateBuilder();
 		builder.Services.AddCors();

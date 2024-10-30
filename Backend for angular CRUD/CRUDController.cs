@@ -3,38 +3,45 @@ using Backend_for_angular_CRUD.EFContextSQLServer;
 using Backend_for_angular_CRUD.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Threading.Tasks;
 namespace Backend_for_angular_CRUD
 {
-	public class CRUDController
+	public class CRUDController<T, C, S> where T : class where C : DbContext where S : DbSet<T>
 	{
-		protected internal UsersContext _userContext;
-		public CRUDController(UsersContext userContext)
+		protected internal C context;
+		public CRUDController(C context)
 		{
-			this._userContext = userContext;
+			this.context = context;
 		}
-		protected internal void ADD(params User[] users)
+		protected internal async Task ADD(params T[] entities)
 		{
-			switch (users.Length)
+			switch (entities.Length)
 			{
 				case 1:
-					_userContext.Add(users[0]);
-					_userContext.SaveChangesAsync();
+					context.Add(entities[0]);
 					break;
 				default:
-					_userContext.AddRange(users);
-					_userContext.SaveChangesAsync();
+					context.AddRange(entities);
 					break;
 			}
+			try
+			{
+				var result = await context.SaveChangesAsync();
+			}
+			catch (Exception ex) { throw new Exception("Cannot save entity/es via CRUDController ADD method", ex); }
 		}
 		//TODO to think send User object or id as already send
-		//TODO <T> instead of downcasting
-		protected internal object Select(params string[] idArray)
+		/*protected internal async Task<List<T>> Select(params string[] idArray)
 		{
 			switch (idArray.Length)
 			{
 				case 0:
-					var users = this._userContext.Users.Select(u => new
+					var users = this.context.Set<S>.Select(u => new
 					{
 						u.Id,
 						u.Name,
@@ -43,17 +50,18 @@ namespace Backend_for_angular_CRUD
 					}).ToList();
 					return users;
 				case 1:
-					var user = this._userContext.Users.First(u => u.Id == idArray[0]);
+					var user = this.context.S.First(u => u.Id == idArray[0]);
 					return user!;
 				default:
-					return null!; //TODO exception
+					throw new NotImplementedException();
 			}
-		}
-		protected internal void Remove(params string[] usersId)
+		}*/
+		/*protected internal void Remove(params string[] usersId)
 		{
-			User? userToRemove;
+			User userToRemove;
 			switch (usersId.Length)
 			{
+				case 0: throw new NotImplementedException();
 				case 1:
 					userToRemove = _userContext.Users.First(u => u.Id == usersId[0]);
 					_userContext.Remove(userToRemove);
@@ -72,10 +80,23 @@ namespace Backend_for_angular_CRUD
 		protected internal void AttachUpdate(User sendUser, User foundUser)
 		{
 			_userContext.Attach(foundUser);
-			foundUser.Name = sendUser.Name;
-			foundUser.Surname = sendUser.Surname;
-			foundUser.Age = sendUser.Age;
+			FieldsController.CopyFields<User>(sendUser, foundUser);
 			_userContext.SaveChangesAsync();
+		}*/
+		#region Dependings
+		private T CreateInstanceOF<T>(T entity) where T : new()
+		{
+			var instance = new T();
+			var properties = typeof(T).GetProperties();
+
+			foreach (var property in properties)
+			{
+				var value = typeof(S).GetProperty(property.Name)?.GetValue(entity);
+				property.SetValue(instance, value);
+			}
+
+			return instance;
 		}
+		#endregion
 	}
 }
