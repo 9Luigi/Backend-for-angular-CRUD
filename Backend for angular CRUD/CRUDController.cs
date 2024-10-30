@@ -36,26 +36,38 @@ namespace Backend_for_angular_CRUD
 			catch (Exception ex) { throw new Exception("Cannot save entity/es via CRUDController ADD method", ex); }
 		}
 		//TODO to think send User object or id as already send
-		/*protected internal async Task<List<T>> Select(params string[] idArray)
+		protected internal async Task<List<object>> SelectAsync(params string[] idArray)
 		{
-			switch (idArray.Length)
+			if (idArray == null)
+				throw new ArgumentNullException(nameof(idArray), "Array of id's haven't be null");
+
+			var result = new List<object>();
+
+			if (idArray.Length == 0)
 			{
-				case 0:
-					var users = this.context.Set<S>.Select(u => new
-					{
-						u.Id,
-						u.Name,
-						u.Surname,
-						u.Age
-					}).ToList();
-					return users;
-				case 1:
-					var user = this.context.S.First(u => u.Id == idArray[0]);
-					return user!;
-				default:
-					throw new NotImplementedException();
+				var users = await this.context.Set<S>().ToListAsync();
+
+				foreach (var user in users)
+				{
+					var instance = this.CreateInstanceOF<T1>(user);
+					result.Add(instance);
+				}
 			}
-		}*/
+			else
+			{
+				var users = await this.context.Set<S>()
+					.Where(u => idArray.Contains(u.Id.ToString()))
+					.ToListAsync();
+
+				foreach (var user in users)
+				{
+					var instance = CreateInstanceOf<T>(user);
+					result.Add(instance);
+				}
+			}
+
+			return result;
+		}
 		/*protected internal void Remove(params string[] usersId)
 		{
 			User userToRemove;
@@ -84,10 +96,10 @@ namespace Backend_for_angular_CRUD
 			_userContext.SaveChangesAsync();
 		}*/
 		#region Dependings
-		private T CreateInstanceOF<T>(T entity) where T : new()
+		private T1 CreateInstanceOF<T1>(S entity) where T1 : new()
 		{
-			var instance = new T();
-			var properties = typeof(T).GetProperties();
+			var instance = new T1();
+			var properties = typeof(T1).GetProperties();
 
 			foreach (var property in properties)
 			{
