@@ -33,6 +33,11 @@ public class Program
 			var result = await cRUDController.SelectAsync();
 			return result;
 		});
+		app.MapDelete("/api/users/{id}", async (string id) =>
+		{
+			cRUDController.Remove(id);
+			System.Diagnostics.Debug.WriteLine("User with id:" + id + " Удален");
+		});
 		/*app.MapGet("/api/users/{id}", async (HttpResponse response, string id) =>
 		{
 			User? userToFind;
@@ -55,11 +60,7 @@ public class Program
 			cRUDController.ADD(sentUser);
 		});
 
-		app.MapDelete("/api/users/{id}", async (string id) =>
-		{
-			cRUDController.Remove(id);
-			System.Diagnostics.Debug.WriteLine("User with id:" + id + " Удален");
-		});
+	
 		app.MapPut("/api/users/", async (HttpRequest request) =>
 		{
 			User? sendUser = await request.ReadFromJsonAsync<User>();

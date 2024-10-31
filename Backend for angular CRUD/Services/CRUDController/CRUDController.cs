@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Linq;
 namespace Backend_for_angular_CRUD
 {
-	public class CRUDController<T, C> where T : class, IEntity where C : DbContext
+	public class CRUDController<T, C> where T : class where C : DbContext
 	{
 		protected internal C context;
 		public CRUDController(C context)
@@ -59,7 +60,7 @@ namespace Backend_for_angular_CRUD
 			{
 				case 0: throw new NotImplementedException("No user IDs provided.");
 				case 1:
-					entityToRemove = await context.Set<T>().FirstOrDefaultAsync(u => u.Id == ids[0]);
+					entityToRemove = await context.Set<T>().FindAsync(ids[0]);
 					if (entityToRemove != null)
 					{
 						context.Remove(entityToRemove);
@@ -68,11 +69,8 @@ namespace Backend_for_angular_CRUD
 					break;
 				default:
 					var entitiesToRemove = new List<T>();
-					foreach (var id in ids)
-					{
-						entityToRemove = context.Set<T>().Where(u => u.Id == id);
-						entitiesToRemove.Add(entityToRemove);
-					}
+					entitiesToRemove = await context.Set<T>().Where(e => ids.Contains((string)e.GetType().GetProperty("Id")!.GetValue(e)!))
+											 .ToListAsync();
 					if (entitiesToRemove.Count > 0)
 					{
 						context.RemoveRange(entitiesToRemove);

@@ -4,7 +4,7 @@ using System.Xml.Linq;
 
 namespace Backend_for_angular_CRUD
 {
-	public class User : IEntity
+	public class User
 	{
 		public string Id { get; set; }
 		public string Name { get; set; }
