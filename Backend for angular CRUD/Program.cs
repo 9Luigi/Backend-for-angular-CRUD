@@ -31,42 +31,46 @@ public class Program
 		{
 			response.ContentType = "application/json";
 			var result = await cRUDController.SelectAsync();
+			System.Diagnostics.Debug.WriteLine("All users send");
 			return result;
 		});
-		app.MapDelete("/api/users/{id}", async (string id) =>
-		{
-			cRUDController.Remove(id);
-			System.Diagnostics.Debug.WriteLine("User with id:" + id + " Удален");
-		});
-		/*app.MapGet("/api/users/{id}", async (HttpResponse response, string id) =>
+		app.MapGet("/api/users/{id}", async (HttpResponse response, string id) =>
 		{
 			User? userToFind;
-			if (cRUDController.Select<User>(id) is List<User>)
+			List<User> users = await cRUDController.SelectAsync(id);
+			userToFind = users.FirstOrDefault();
+			if(userToFind != null)
 			{
-				userToFind = cRUDController.Select(id) as User;
-				await response.WriteAsJsonAsync(userToFind);
-				System.Diagnostics.Debug.WriteLine(userToFind!.Name + ": Отправлен");
+				System.Diagnostics.Debug.WriteLine(userToFind!.Name + ": Send");
+				return userToFind;
 			}
 			else
 			{
-				System.Diagnostics.Debug.WriteLine("Select returns not User type");
-				throw new Exception("Select returns not User type");
+				return null;
 			}
-		});*/
-		/*app.MapPost("api/users/", async (HttpRequest request) =>
+		});
+		app.MapDelete("/api/users/{id}", async (string id) =>
+		{
+			await cRUDController.Remove(id);
+			System.Diagnostics.Debug.WriteLine("User with id:" + id + " Removed");
+		});
+		app.MapPost("api/users/", async (HttpRequest request) =>
 		{
 			User? sentUser = await request.ReadFromJsonAsync<User>();
-			sentUser!.Id = Guid.NewGuid().ToString();
-			cRUDController.ADD(sentUser);
+			if (sentUser != null)
+			{
+				sentUser.Id = Guid.NewGuid().ToString();
+				await cRUDController.ADD(sentUser);
+			}
 		});
 
-	
+
 		app.MapPut("/api/users/", async (HttpRequest request) =>
 		{
 			User? sendUser = await request.ReadFromJsonAsync<User>();
 			User? foundUser = usersContext.Users.First(x => x.Id == sendUser!.Id);
-			cRUDController.AttachUpdate(sendUser!, foundUser!);
-		});*/
+			await cRUDController.AttachUpdate(sendUser!, foundUser!);
+		});
 		app.Run();
 	}
 }

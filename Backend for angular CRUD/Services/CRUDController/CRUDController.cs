@@ -55,10 +55,10 @@ namespace Backend_for_angular_CRUD
 
 		protected internal async Task Remove(params string[] ids)
 		{
-			T entityToRemove;
+			T? entityToRemove;
 			switch (ids.Length)
 			{
-				case 0: throw new NotImplementedException("No user IDs provided.");
+				case 0: throw new ArgumentException("No user IDs provided.");
 				case 1:
 					entityToRemove = await context.Set<T>().FindAsync(ids[0]);
 					if (entityToRemove != null)
@@ -79,11 +79,11 @@ namespace Backend_for_angular_CRUD
 					break;
 			}
 		}
-		/*protected internal void AttachUpdate(User sendUser, User foundUser)
+		protected internal async Task AttachUpdate(T sendEntity, T foundEntity)
 		{
-			_userContext.Attach(foundUser);
-			FieldsController.CopyFields<User>(sendUser, foundUser);
-			_userContext.SaveChangesAsync();
-		}*/
+			context.Attach(foundEntity);
+			FieldsController.CopyFields<T>(sendEntity, foundEntity);
+			await context.SaveChangesAsync();
+		}
 	}
 }
