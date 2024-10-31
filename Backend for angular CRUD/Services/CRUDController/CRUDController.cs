@@ -4,7 +4,7 @@ namespace Backend_for_angular_CRUD
 {
 	public class CRUDController<T, C> where T : class where C : DbContext
 	{
-		protected internal C context;
+		private C context;
 		public CRUDController(C context)
 		{
 			this.context = context;

@@ -15,29 +15,28 @@ public class Program
 			new User("Dmitry","Surkov",29)
 		};
 		var usersContext = new UsersContext(); //dbContext for users model
-		var cRUDController = new CRUDController<User, UsersContext>(usersContext);
 
 		var builder = WebApplication.CreateBuilder();
 		builder.Services.AddCors();
-
+		builder.Services.AddScoped<CRUDController<User, UsersContext>>();
 
 		var app = builder.Build();
 		app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()); //cross domen for different dns front/backend
-		app.MapGet("/AddList", async () =>
+		app.MapGet("/AddList", async (CRUDController<User, UsersContext> cRUDController) =>
 		{
 			await cRUDController.ADD(usersToPost.ToArray()); //initiate db via route
 		});
-		app.MapGet("/", async (HttpResponse response) =>
+		app.MapGet("/", async (CRUDController<User,UsersContext> cRUDController, HttpResponse response) =>
 		{
 			response.ContentType = "application/json";
 			var result = await cRUDController.SelectAsync();
 			System.Diagnostics.Debug.WriteLine("All users send");
 			return result; //return full dbSet
 		});
-		app.MapGet("/api/users/{id}", async (string id) =>
+		app.MapGet("/api/users/{id}", async (CRUDController<User, UsersContext> cRUDController, string id) =>
 		{
 			User? userToFind;
-			List<User> users = await cRUDController.SelectAsync(id);
+			List<User> users = await cRUDController.SelectAsync( id);
 			userToFind = users.FirstOrDefault();
 			if(userToFind != null)
 			{
@@ -49,12 +48,12 @@ public class Program
 				return null; //handled in CRUDController
 			}
 		});
-		app.MapDelete("/api/users/{id}", async (string id) =>
+		app.MapDelete("/api/users/{id}", async (CRUDController<User, UsersContext> cRUDController, string id) =>
 		{
 			await cRUDController.Remove(id); //remove user record from table in database
 			System.Diagnostics.Debug.WriteLine("User with id:" + id + " Removed");
 		});
-		app.MapPost("api/users/", async (HttpRequest request) =>
+		app.MapPost("api/users/", async (CRUDController<User, UsersContext> cRUDController, HttpRequest request) =>
 		{
 			User? sentUser = await request.ReadFromJsonAsync<User>();
 			if (sentUser != null)
@@ -65,7 +64,7 @@ public class Program
 		});
 
 
-		app.MapPut("/api/users/", async (HttpRequest request) =>
+		app.MapPut("/api/users/", async (CRUDController<User, UsersContext> cRUDController, HttpRequest request) =>
 		{
 			User? sendUser = await request.ReadFromJsonAsync<User>(); //attempt to read user's entity from resieved json
 			if(sendUser != null)
