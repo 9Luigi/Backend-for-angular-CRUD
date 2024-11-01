@@ -14,14 +14,15 @@ public class Program
 			new User("Galina","Maizlina",21),
 			new User("Dmitry","Surkov",29)
 		};
-		var usersContext = new UsersContext(); //dbContext for users model
 
 		var builder = WebApplication.CreateBuilder();
 		builder.Services.AddCors();
-		builder.Services.AddScoped<CRUDController<User, UsersContext>>();
+		builder.Services.AddScoped<CRUDController<User, UsersContext>>(); //for dependency injection
+		builder.Services.AddScoped<UsersContext>();
 
 		var app = builder.Build();
 		app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()); //cross domen for different dns front/backend
+		
 		app.MapGet("/AddList", async (CRUDController<User, UsersContext> cRUDController) =>
 		{
 			await cRUDController.ADD(usersToPost.ToArray()); //initiate db via route
@@ -64,12 +65,12 @@ public class Program
 		});
 
 
-		app.MapPut("/api/users/", async (CRUDController<User, UsersContext> cRUDController, HttpRequest request) =>
+		app.MapPut("/api/users/", async (CRUDController<User, UsersContext> cRUDController, HttpRequest request, UsersContext userContext) =>
 		{
 			User? sendUser = await request.ReadFromJsonAsync<User>(); //attempt to read user's entity from resieved json
 			if(sendUser != null)
 			{
-				User? foundUser = usersContext.Users.First(x => x.Id == sendUser!.Id); //if attempt above succed search that entity in database
+				User? foundUser = userContext.Users.First(x => x.Id == sendUser!.Id); //if attempt above succed search that entity in database
 				await cRUDController.AttachUpdate(sendUser!, foundUser!); //change all edited(don't matched) fields via refliction in CRUDController
 			}
 		});
