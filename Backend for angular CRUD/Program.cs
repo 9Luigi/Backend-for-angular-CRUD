@@ -59,7 +59,7 @@ public class Program
 			User? sentUser = await request.ReadFromJsonAsync<User>();
 			if (sentUser != null)
 			{
-				sentUser.Id = Guid.NewGuid().ToString(); //generate new user's uniq id
+				sentUser.Id = Guid.NewGuid(); //generate new user's uniq id
 				await cRUDController.ADD(sentUser); //Create and push user's entity to database
 			}
 		});
