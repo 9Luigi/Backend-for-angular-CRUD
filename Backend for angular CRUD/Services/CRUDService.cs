@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq;
-namespace Backend_for_angular_CRUD
+namespace Backend_for_angular_CRUD.Services
 {
-	public class CRUDController<T, C> where T : class where C : DbContext
+	public class CRUDService<T, C> where T : class where C : DbContext
 	{
 		private C context;
-		public CRUDController(C context)
+		public CRUDService(C context)
 		{
 			this.context = context;
 		}
@@ -80,7 +80,7 @@ namespace Backend_for_angular_CRUD
 		protected internal async Task AttachUpdate(T sendEntity, T foundEntity) //changes edited fields in entity and push it into db
 		{
 			context.Attach(foundEntity);
-			FieldsController.CopyFields<T>(sendEntity, foundEntity);
+			FieldsController.CopyFields(sendEntity, foundEntity);
 			await context.SaveChangesAsync();
 		}
 	}

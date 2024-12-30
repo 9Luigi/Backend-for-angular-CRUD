@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend_for_angular_CRUD.Migrations
 {
     [DbContext(typeof(UsersContext))]
-    [Migration("20241203124708_INIT")]
+    [Migration("20241230093456_INIT")]
     partial class INIT
     {
         /// <inheritdoc />
