@@ -14,7 +14,22 @@ namespace Backend_for_angular_CRUD
 				new User("Vladimir", "Sadkov", 26),
 				new User("Alexandra", "Kravchenko", 26),
 				new User("Galina", "Maizlina", 21),
-				new User("Dmitry", "Surkov", 29)
+				new User("Dmitry", "Surkov", 29),
+				new User("Roman1", "Kudrik", 26),
+				new User("Vladimir1", "Sadkov", 26),
+				new User("Alexandra1", "Kravchenko", 26),
+				new User("Galina1", "Maizlina", 21),
+				new User("Dmitry1", "Surkov", 29),
+				new User("Roman2", "Kudrik", 26),
+				new User("Vladimir2", "Sadkov", 26),
+				new User("Alexandra2", "Kravchenko", 26),
+				new User("Galina2", "Maizlina", 21),
+				new User("Dmitry2", "Surkov", 29),
+				new User("Roman3", "Kudrik", 26),
+				new User("Vladimir3", "Sadkov", 26),
+				new User("Alexandra3", "Kravchenko", 26),
+				new User("Galina3", "Maizlina", 21),
+				new User("Dmitry3", "Surkov", 29)
 			};
 
 			var builder = WebApplication.CreateBuilder();

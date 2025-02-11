@@ -28,7 +28,8 @@ namespace Backend_for_angular_CRUD
 		[HttpGet("{id}")]
 		public async Task<ActionResult<User>> GetUserById(string id)
 		{
-			var users = await _crudController.SelectAsync(id);
+			Guid.TryParse(id, out var guidId);
+			var users = await _crudController.SelectAsync(guidId);
 			var userToFind = users.FirstOrDefault();
 			if (userToFind != null)
 			{
@@ -53,6 +54,7 @@ namespace Backend_for_angular_CRUD
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> DeleteUser(string id)
 		{
+			Guid.TryParse(id, out var guidId);
 			await _crudController.Remove(id);
 			System.Diagnostics.Debug.WriteLine($"User with id: {id} removed");
 			return NoContent();

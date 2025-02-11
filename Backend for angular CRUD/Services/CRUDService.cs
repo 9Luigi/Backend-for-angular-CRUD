@@ -24,7 +24,7 @@ namespace Backend_for_angular_CRUD.Services
 			{
 				var result = await context.SaveChangesAsync();
 			}
-			catch (Exception ex) { throw new Exception("Cannot save entity/es via CRUDController ADD method", ex); }
+			catch (Exception ex) { throw new Exception("Cannot save entity/es via CRUDController ADD method", ex); } 
 		}
 		protected internal async Task<List<T>> SelectAsync(params object[] ids)
 		{
@@ -53,22 +53,32 @@ namespace Backend_for_angular_CRUD.Services
 		}
 		protected internal async Task Remove(params string[] ids)
 		{
-			T? entityToRemove;
+			if (ids.Length == 0)
+				throw new ArgumentException("No user IDs provided.");
+
 			switch (ids.Length)
 			{
-				case 0: throw new ArgumentException("No user IDs provided.");//if method invoke with no arguments, logic dosen't let this happen, cause something have to be deleted
-				case 1: //remove 1 record
-					entityToRemove = await context.Set<T>().FindAsync(ids[0]);
-					if (entityToRemove != null)
+				case 1: // Removing a single record
+					if (Guid.TryParse(ids[0], out Guid guidId))
 					{
-						context.Remove(entityToRemove);
-						await context.SaveChangesAsync();
+						var entityToRemove = await context.Set<T>().FindAsync(guidId);
+						if (entityToRemove != null)
+						{
+							context.Remove(entityToRemove);
+							await context.SaveChangesAsync();
+						}
 					}
 					break;
-				default://remove all record send as arguments
-					var entitiesToRemove = new List<T>();
-					entitiesToRemove = await context.Set<T>().Where(e => ids.Contains((string)e.GetType().GetProperty("Id")!.GetValue(e)!))
-											 .ToListAsync();//get value of Id fields via reflection cause class uses generic and compiller sees error
+
+				default: // Removing multiple records
+					var guidIds = ids.Select(id => Guid.TryParse(id, out var guid) ? guid : Guid.Empty)
+									 .Where(guid => guid != Guid.Empty) // Exclude parsing errors
+									 .ToList();
+
+					var entitiesToRemove = await context.Set<T>()
+						.Where(e => guidIds.Contains((Guid)e.GetType().GetProperty("Id")!.GetValue(e)!))
+						.ToListAsync();
+
 					if (entitiesToRemove.Count > 0)
 					{
 						context.RemoveRange(entitiesToRemove);
@@ -77,10 +87,11 @@ namespace Backend_for_angular_CRUD.Services
 					break;
 			}
 		}
+
 		protected internal async Task AttachUpdate(T sendEntity, T foundEntity) //changes edited fields in entity and push it into db
 		{
 			context.Attach(foundEntity);
-			FieldsController.CopyFields(sendEntity, foundEntity);
+			FieldsController.CopyFields(sendEntity, foundEntity); 
 			await context.SaveChangesAsync();
 		}
 	}
